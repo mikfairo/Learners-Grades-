@@ -81,7 +81,56 @@ const LearnerSubmissions = [
 // let assignment1 =
 // let assignment2 =
 
-function getLearnerData(course, avg, submissions) {
+function getLearnerData(AssignmentGroup, LearnerSubmissions) {
+  let learnerArray = [];
+  let currentDate = 2025;
+  for (const item of LearnerSubmissions) {
+    let idExists = false;
+
+    for (const obj of learnerArray) {
+      //initializing variable obj within that group
+      if (item.learner_id === obj.id) { //checking if they are same id # in original and new
+    
+        for (const assign of AssignmentGroup.assignments) {
+          if (item.assignment_id === assign.id) {
+            //if these are the same assignment ids
+            if (Number(assign.due_at.slice(0, 4)) < currentDate) {
+              obj.totalpp += assign.points_possible; //adding to points possible
+              obj.sum += item.submission.score; //to count for average
+              obj[item.assignment_id] = item.submission.score;
+            }
+            break;
+          }
+        }
+        idExists = true;
+        break;
+      }
+    }
+    if (idExists === false) {
+      for (const assign of AssignmentGroup.assignments) {
+        if (item.assignment_id === assign.id) {  //if learner id false add following object below
+          if (Number(assign.due_at.slice(0, 4)) < currentDate) {
+            let studentObject = {
+              id: item.learner_id,
+              avg: 0,
+              [item.assignment_id]: item.submission.score,
+              sum: item.submission.score,
+              totalpp: assign.points_possible, //50, 150
+            };
+            learnerArray.push(studentObject); //adding to the learnerData array final loop
+          }
+        }
+      }
+    }
+  }
+
+  for (const learner of learnerArray) {
+    learner.avg = learner.sum / learner.totalpp;
+    // learner.item.assignment_id = item.submission.score/assign.points_possible
+    delete learner.sum;
+    delete learner.totalpp;
+  }
+  return learnerArray;
   // sample of what the final input should look like in console
   // here, we would process this data to achieve the desired result.
   //   const result = [
@@ -100,50 +149,5 @@ function getLearnerData(course, avg, submissions) {
   //   ];
   //   return result;
 }
-let learnerArray = [];
-
-for (const item of LearnerSubmissions) {
-  let idExists = false;
-
-  for (const obj of learnerArray) { //initializing variable obj within that group
-    if (item.learner_id === obj.id) { //checking if theres same id # 
-      obj[item.assignment_id] = item.submission.score;
-
-      for (const assign of AssignmentGroup.assignments){
-        if (item.assignment_id === assign.id) { //if these are the same assignment ids
-          obj.totalpp = obj.totalpp + assign.points_possible 
-          break; 
-        }
-      }
-      obj.sum = obj.sum + item.submission.score
-      idExists = true;
-      break;
-    }
-  }
-  if (idExists === false) {
-    for (const assign of AssignmentGroup.assignments){
-        if (item.assignment_id === assign.id) { //if these are the same assignment ids
-          let studentObject = {
-            id: item.learner_id,
-            avg: 0,
-            [item.assignment_id]: item.submission.score,
-            sum: item.submission.score,
-            totalpp: assign.points_possible 
-          };
-          learnerArray.push(studentObject); //adding to the learnerData array
-        }
-      }
-  }
-}
-
-// console.log(learnerArray);
-
-// Create a for loop for all learners of your learnerArray
-// set the value for average to sum divided by total points possible
-// console.log learnerArray after the for loop is complete
-for(const learner of learnerArray) {
-  learner.avg = learner.sum/learner.totalpp
-  delete learner.sum
-  delete learner.totalpp
-}
-console.log(learnerArray);
+let result = getLearnerData(AssignmentGroup, LearnerSubmissions);
+console.log(result);
