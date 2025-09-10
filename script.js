@@ -83,22 +83,43 @@ const LearnerSubmissions = [
 
 function getLearnerData(AssignmentGroup, LearnerSubmissions) {
   let learnerArray = [];
-  let currentDate = 2025;
+  let currentYear = 2025;
   for (const item of LearnerSubmissions) {
     let idExists = false;
-
+    let subYear = Number(item.submission.submitted_at.slice(0, 4));
+    let subMonth = Number(item.submission.submitted_at.slice(5, 7));
+    let subDay = Number(item.submission.submitted_at.slice(8, 10));
     for (const obj of learnerArray) {
-      //initializing variable obj within that group
-      if (item.learner_id === obj.id) { //checking if they are same id # in original and new
-    
+      //initializing variable obj within new variable array
+      if (item.learner_id === obj.id) {
+        //checking if they are same id # in original and new
+
         for (const assign of AssignmentGroup.assignments) {
           if (item.assignment_id === assign.id) {
             //if these are the same assignment ids
-            if (Number(assign.due_at.slice(0, 4)) < currentDate) {
+            let dueYear = Number(assign.due_at.slice(0, 4));
+            let dueMonth = Number(assign.due_at.slice(5, 7));
+            let dueDay = Number(assign.due_at.slice(8, 10));
+            if (dueYear <= currentYear) {
               obj.totalpp += assign.points_possible; //adding to points possible
-              obj.sum += item.submission.score; //to count for average
-              obj[item.assignment_id] = item.submission.score;
+              if (dueYear >= subYear) {
+                if (dueMonth >= subMonth) {
+                  if (dueDay > subDay) {
+                    obj[item.assignment_id] = item.submission.score;
+                  } else {
+                    obj[item.assignment_id] = item.submission.score - 15;
+                  }
+                } else {
+                  obj[item.assignment_id] = item.submission.score - 15;
+                }
+              } else {
+                obj[item.assignment_id] = item.submission.score - 15;
+              }
+
+              obj.sum += obj[item.assignment_id]; //to count for average
+              obj[item.assignment_id] = obj[item.assignment_id]; //to include or not to include id and score
             }
+
             break;
           }
         }
@@ -108,8 +129,11 @@ function getLearnerData(AssignmentGroup, LearnerSubmissions) {
     }
     if (idExists === false) {
       for (const assign of AssignmentGroup.assignments) {
-        if (item.assignment_id === assign.id) {  //if learner id false add following object below
-          if (Number(assign.due_at.slice(0, 4)) < currentDate) {
+        if (item.assignment_id === assign.id) {
+          //if learner id false add following object below
+          let dueYear = Number(assign.due_at.slice(0, 4));
+          let dueMonth = Number(assign.due_at.slice(5, 7));
+          if (dueYear <= subYear && dueMonth <= subMonth) {
             let studentObject = {
               id: item.learner_id,
               avg: 0,
