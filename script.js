@@ -89,10 +89,8 @@ function getLearnerData(AssignmentGroup, LearnerSubmissions) {
     let subYear = Number(item.submission.submitted_at.slice(0, 4));
     let subMonth = Number(item.submission.submitted_at.slice(5, 7));
     let subDay = Number(item.submission.submitted_at.slice(8, 10));
-    for (const obj of learnerArray) {
-      //initializing variable obj within new variable array
-      if (item.learner_id === obj.id) {
-        //checking if they are same id # in original and new
+    for (const obj of learnerArray) { //initializing variable obj within new variable array
+      if (item.learner_id === obj.id) {  //checking if they are same id # in original and new
 
         for (const assign of AssignmentGroup.assignments) {
           if (item.assignment_id === assign.id) {
@@ -129,8 +127,7 @@ function getLearnerData(AssignmentGroup, LearnerSubmissions) {
     }
     if (idExists === false) {
       for (const assign of AssignmentGroup.assignments) {
-        if (item.assignment_id === assign.id) {
-          //if learner id false add following object below
+        if (item.assignment_id === assign.id) { //if learner id false add following object below
           let dueYear = Number(assign.due_at.slice(0, 4));
           let dueMonth = Number(assign.due_at.slice(5, 7));
           if (dueYear <= subYear && dueMonth <= subMonth) {
